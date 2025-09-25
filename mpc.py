@@ -90,7 +90,7 @@ class CartPoleMPC:
         # NLP definition
         nlp = {'x': vars, 'f': cost, 'g': cons, 'p': P}
 
-        # IPOPT options (tweak as needed)
+        # IPOPT solver
         if self.solver_type == 'ipopt':
             opts = {
                 'ipopt.print_level': 0,

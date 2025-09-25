@@ -6,20 +6,22 @@ from mpc import CartPoleMPC
 from learn import ImitationNet
 
 ########## Controller selection ##########
-controller = "mpc" # opt : "mpc", "il"
+controller = "il" # opt : "mpc", "il"
 num_episodes = 100
 ##########################################
 
 if controller == "mpc":
     mpc = CartPoleMPC(horizon=40, dt=0.02)
+    env = gym.make('CartPole-v1', render_mode='rgb_array')
 elif controller == "il":
     il_model = ImitationNet()
     il_model.load_state_dict(torch.load('cartpole_imitation.pth'))
     il_model.eval()
+    env = gym.make('CartPole-v1', render_mode='human')
 else:
     raise ValueError("Unknown controller type")
 
-env = gym.make('CartPole-v1', render_mode='human')
+
 dataset = []
 suc = 0
 
@@ -28,22 +30,21 @@ for i_episode in range(num_episodes):
     temp = []
 
     for t in range(500):
+        old = observation.copy()
         if controller == "il":
             obs_tensor = torch.tensor(observation, dtype=torch.float32).unsqueeze(0)
             with torch.no_grad():
-                logits = il_model(obs_tensor)
-                action = torch.argmax(logits, dim=1).item()
-            raw_action = 2 * action - 1  # map 0->-1, 1->+1
+                raw_action = il_model(obs_tensor)
             
         elif controller == "mpc":
             raw_action = mpc.control(np.array(observation))
+            
 
         # Gym action (discrete)
         action = int(raw_action > 0)
-
         observation, reward, terminated, truncated, info = env.step(action)
 
-        temp.append([*observation, raw_action, action])
+        temp.append([*old, raw_action, action])
 
         if terminated or truncated:
             print(f"Episode {i_episode} finished after {t+1} timesteps")
