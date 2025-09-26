@@ -3,5 +3,12 @@
 and also include implemetation of Imintaion Learning with Data generating by MPC controller as Expert.
 
 
+mpc.py : implemetation of MPC controller 
+
+learn.py : learning code 
+
+run.py : main code for mpc and IL controller
+
+
 
 
