@@ -1,23 +1,23 @@
 import gymnasium as gym
 import numpy as np
 import pandas as pd
-import torch
-from mpc import CartPoleMPC
-from learn import ImitationNet
+# import torch
+from mpc_ilqr import CartPoleILQR
+# from learn import ImitationNet
 
 ########## Controller selection ##########
-controller = "il" # opt : "mpc", "il"
+controller = "moc" # opt : "mpc", "il"
 num_episodes = 100
 ##########################################
 
 if controller == "mpc":
-    mpc = CartPoleMPC(horizon=40, dt=0.02)
+    mpc = CartPoleILQR(horizon=40, dt=0.02)
     env = gym.make('CartPole-v1', render_mode='rgb_array')
-elif controller == "il":
-    il_model = ImitationNet()
-    il_model.load_state_dict(torch.load('cartpole_imitation.pth'))
-    il_model.eval()
-    env = gym.make('CartPole-v1', render_mode='human')
+# elif controller == "il":
+#     il_model = ImitationNet()
+#     il_model.load_state_dict(torch.load('cartpole_imitation.pth'))
+#     il_model.eval()
+#     env = gym.make('CartPole-v1', render_mode='human')
 else:
     raise ValueError("Unknown controller type")
 
@@ -31,12 +31,12 @@ for i_episode in range(num_episodes):
 
     for t in range(500):
         old = observation.copy()
-        if controller == "il":
-            obs_tensor = torch.tensor(observation, dtype=torch.float32).unsqueeze(0)
-            with torch.no_grad():
-                raw_action = il_model(obs_tensor)
+        # if controller == "il":
+        #     obs_tensor = torch.tensor(observation, dtype=torch.float32).unsqueeze(0)
+        #     with torch.no_grad():
+        #         raw_action = il_model(obs_tensor)
             
-        elif controller == "mpc":
+        if controller == "mpc":
             raw_action = mpc.control(np.array(observation))
             
 
