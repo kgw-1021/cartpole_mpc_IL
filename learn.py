@@ -62,5 +62,4 @@ if __name__ == "__main__":
             print("Early stop")
             break
 
-    # 5. 학습된 모델 저장
     torch.save(best_model, 'cartpole_imitation.pth')
