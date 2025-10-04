@@ -39,7 +39,6 @@ for i_episode in range(num_episodes):
         elif controller == "mpc":
             raw_action = mpc.control(np.array(observation))
             
-
         # Gym action (discrete)
         action = int(raw_action > 0)
         observation, reward, terminated, truncated, info = env.step(action)
